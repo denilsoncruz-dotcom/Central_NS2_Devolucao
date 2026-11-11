@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b33">
+<title>Criar Pedido WIS | NS2 CD Extrema</title>
+<style>
+:root{--navy:#12233f;--blue:#286bd0;--ink:#1b2940;--muted:#687891;--line:#e5ebf3;--bg:#f4f7fb;--green:#16834a;--red:#c0392b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:980px;width:calc(100% - 36px);margin:auto}
+header{background:#fff;border-bottom:1px solid var(--line)}.head{height:72px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}.mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#5da2ff,#245db8);display:grid;place-items:center;color:#fff;font-weight:900}
+.brand b{font-size:13px;letter-spacing:.06em}.brand small{display:block;margin-top:3px;color:#71819a;font-size:10px;font-weight:800;letter-spacing:.14em}
+.back{color:var(--blue);font-size:13px;text-decoration:none;font-weight:700}
+main{padding:30px 0 54px}.intro{margin-bottom:22px}.eyebrow{color:var(--blue);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:clamp(27px,4vw,38px);letter-spacing:-.04em;margin:9px 0}.intro p{color:var(--muted);line-height:1.6;margin:0;max-width:700px;font-size:14px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 8px 24px #172d4b08}
+.drop{border:2px dashed #b9c9df;border-radius:15px;padding:32px 18px;text-align:center;background:#f9fbfe;transition:.15s}
+.drop.drag{border-color:var(--blue);background:#eff6ff}.drop .symbol{font-size:36px}.drop h2{font-size:17px;margin:10px 0 5px}.drop p{font-size:12px;color:var(--muted);margin:0 0 16px}
+input[type=file]{display:none}.pick{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;border:0;border-radius:10px;padding:11px 18px;font-weight:750;font-size:13px;cursor:pointer}
+.fileinfo{margin-top:14px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.help{font-size:12px;color:var(--muted);line-height:1.6;margin:15px 2px 0}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.btn{border:0;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:750;cursor:pointer}
+.btn.primary{background:#16834a;color:white}.btn.secondary{background:#eef2f7;color:#33445d}.btn:disabled{opacity:.45;cursor:not-allowed}
+.status{display:none;margin-top:18px;padding:13px 15px;border-radius:11px;font-size:13px;line-height:1.5}.status.show{display:block}.status.info{background:#eff6ff;color:#24518b}.status.error{background:#fff1f0;color:#a33128}.status.success{background:#eff9f2;color:#246b40}
+.results{display:none;margin-top:18px}.results.show{display:block}.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:14px}.kpi small{display:block;color:var(--muted);font-size:11px}.kpi strong{display:block;font-size:24px;margin-top:5px;letter-spacing:-.03em}
+.result-note{font-size:12px;color:var(--muted);margin:14px 0 0;line-height:1.55}
+.details{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.details summary{padding:12px 14px;cursor:pointer;font-size:13px;font-weight:700;background:#fafbfd}
+.details-content{max-height:230px;overflow:auto;padding:0 14px 12px;font-size:12px;color:var(--muted)}
+.details-content ul{padding-left:18px}.details-content li{margin:5px 0}
+footer{margin-top:26px;color:#8794a8;font-size:11px;text-align:center}
+@media(max-width:560px){.panel{padding:16px}.kpis{grid-template-columns:1fr}.head{height:65px}.back{font-size:12px}}
+</style>
+</head>
+<body>
+<header><div class="wrap head">
+<a class="brand" href="index.html"><span class="mark">NS2</span><span><b>NS2 CD EXTREMA</b><small>CENTRAL DE INDICADORES</small></span></a>
+<a class="back" href="index.html">← Voltar à Central</a>
+</div></header>
+<main class="wrap">
+<section class="intro"><div class="eyebrow">Ferramenta operacional</div><h1>Criar Pedido WIS</h1><p>Envie sua planilha Excel. O sistema identifica cada ID MASTER, separa os SKUs e quantidades em arquivos CSV individuais e reúne tudo em um ZIP pronto para baixar.</p></section>
+<section class="panel">
+<div class="drop" id="drop">
+<div class="symbol">📄</div><h2>Solte sua planilha aqui</h2><p>Formatos aceitos: Excel (.xlsx ou .xls)</p>
+<label class="pick" for="file">Selecionar planilha</label>
+<input id="file" type="file" accept=".xlsx,.xls">
+<div class="fileinfo" id="fileinfo">Nenhum arquivo selecionado</div>
+</div>
+<p class="help"><b>Como a planilha deve estar organizada?</b><br>Na primeira coluna, cada linha com o ID MASTER e a segunda coluna vazia inicia um pedido. Abaixo dela ficam os SKUs na primeira coluna e suas quantidades na segunda coluna. O sistema mantém a ordem dos itens.</p>
+<div class="actions">
+<button class="btn primary" id="process" disabled>Processar planilha</button>
+<button class="btn secondary" id="clear" type="button">Limpar</button>
+</div>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+<div class="results" id="results">
+<div class="kpis">
+<div class="kpi"><small>Arquivos CSV</small><strong id="countIds">0</strong></div>
+<div class="kpi"><small>Linhas de SKU</small><strong id="countRows">0</strong></div>
+<div class="kpi"><small>Total de itens (QTD)</small><strong id="countQty">0</strong></div>
+</div>
+<p class="result-note" id="resultnote"></p>
+<div class="actions"><button class="btn primary" id="download">Baixar ZIP dos pedidos</button></div>
+<details class="details"><summary>Conferir pedidos incluídos</summary><div class="details-content" id="idlist"></div></details>
+</div>
+</section>
+<footer>Central de Indicadores · NS2 CD Extrema</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+(() => {
+ const fileInput=document.getElementById('file'), drop=document.getElementById('drop');
+ const processBtn=document.getElementById('process'), clearBtn=document.getElementById('clear');
+ const statusBox=document.getElementById('status'), results=document.getElementById('results');
+ const fileInfo=document.getElementById('fileinfo');
+ let selectedFile=null, generatedZip=null;
+ const showStatus=(message,type='info')=>{statusBox.textContent=message;statusBox.className='status show '+type};
+ const cleanNumber=v=>{if(v===null||v===undefined||String(v).trim()==='')return '';if(typeof v==='number')return Number.isInteger(v)?String(v):String(v);return String(v).trim()};
+ const isIdRow=(a,b)=>a!==null&&a!==undefined&&String(a).trim()!==''&&(b===null||b===undefined||String(b).trim()==='')&&/^\d+(?:\.0+)?$/.test(String(a).trim());
+ const encode1252=(str)=>{
+   const out=[];
+   const special={'€':0x80,'‚':0x82,'ƒ':0x83,'„':0x84,'…':0x85,'†':0x86,'‡':0x87,'ˆ':0x88,'‰':0x89,'Š':0x8A,'‹':0x8B,'Œ':0x8C,'Ž':0x8E,'‘':0x91,'’':0x92,'“':0x93,'”':0x94,'•':0x95,'–':0x96,'—':0x97,'˜':0x98,'™':0x99,'š':0x9A,'›':0x9B,'œ':0x9C,'ž':0x9E,'Ÿ':0x9F};
+   for(const ch of str){const cp=ch.codePointAt(0);if(cp<=255)out.push(cp);else if(special[ch]!==undefined)out.push(special[ch]);else out.push(63);}
+   return new Uint8Array(out);
+ };
+ function reset(){selectedFile=null;generatedZip=null;fileInput.value='';fileInfo.textContent='Nenhum arquivo selecionado';processBtn.disabled=true;results.classList.remove('show');statusBox.className='status';}
+ function useFile(file){if(!file)return;if(!/\.(xlsx|xls)$/i.test(file.name)){showStatus('Selecione uma planilha Excel no formato .xlsx ou .xls.','error');return;}selectedFile=file;generatedZip=null;fileInfo.textContent=file.name+' · '+(file.size/1024).toFixed(1)+' KB';processBtn.disabled=false;results.classList.remove('show');statusBox.className='status';}
+ fileInput.addEventListener('change',e=>useFile(e.target.files[0]));
+ ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
+ ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
+ drop.addEventListener('drop',e=>useFile(e.dataTransfer.files[0]));
+ clearBtn.addEventListener('click',reset);
+ processBtn.addEventListener('click',async()=>{
+   if(!selectedFile)return;
+   processBtn.disabled=true;results.classList.remove('show');showStatus('Lendo a planilha e separando os pedidos…');
+   try{
+     if(typeof XLSX==='undefined'||typeof JSZip==='undefined')throw new Error('Não foi possível carregar as bibliotecas necessárias. Verifique sua conexão com a internet e atualize a página.');
+     const buffer=await selectedFile.arrayBuffer();
+     const workbook=XLSX.read(buffer,{type:'array',cellDates:false});
+     const sheet=workbook.Sheets[workbook.SheetNames[0]];
+     const rows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:true,defval:null,blankrows:false});
+     const orders=new Map();let currentId=null,invalid=[];
+     for(let i=0;i<rows.length;i++){
+       const row=rows[i]||[],a=row[0],b=row[1];
+       if(isIdRow(a,b)){currentId=cleanNumber(a).replace(/\.0+$/,'');if(!orders.has(currentId))orders.set(currentId,[]);continue;}
+       if(a===null||a===undefined||String(a).trim()==='')continue;
+       if(String(a).trim().toLowerCase().includes('rótulos de linha')||String(a).trim().toLowerCase()==='sku')continue;
+       if(currentId===null){invalid.push('Linha '+(i+1)+': SKU encontrado antes do primeiro ID MASTER.');continue;}
+       if(b===null||b===undefined||String(b).trim()===''){invalid.push('Linha '+(i+1)+': quantidade vazia para o SKU '+a+'.');continue;}
+       const qty=Number(String(b).replace(',','.'));
+       if(!Number.isFinite(qty)||qty<=0){invalid.push('Linha '+(i+1)+': quantidade inválida para o SKU '+a+'.');continue;}
+       orders.get(currentId).push([cleanNumber(a),Number.isInteger(qty)?String(qty):String(qty)]);
+     }
+     for(const [id,items] of orders){if(items.length===0)invalid.push('ID MASTER '+id+' sem SKUs/quantidades.');}
+     const valid=[...orders.entries()].filter(([id,items])=>items.length>0);
+     if(invalid.length)throw new Error('A planilha possui '+invalid.length+' inconsistência(s). Corrija antes de gerar os arquivos. Primeiro problema: '+invalid[0]);
+     if(!valid.length)throw new Error('Não encontrei pedidos. Confira se o ID MASTER está na primeira coluna e se a célula de quantidade dessa linha está vazia.');
+     const zip=new JSZip();let totalRows=0,totalQty=0;
+     for(const [id,items] of valid){
+       const csv='SKU;QTD\r\n'+items.map(([sku,qty])=>sku+';'+qty).join('\r\n')+'\r\n';
+       zip.file(id+'.csv',encode1252(csv));totalRows+=items.length;for(const [,q] of items)totalQty+=Number(q);
+     }
+     generatedZip=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+     document.getElementById('countIds').textContent=valid.length.toLocaleString('pt-BR');
+     document.getElementById('countRows').textContent=totalRows.toLocaleString('pt-BR');
+     document.getElementById('countQty').textContent=totalQty.toLocaleString('pt-BR');
+     document.getElementById('resultnote').textContent='Conferência concluída: '+valid.length+' arquivo(s) CSV gerado(s), com cabeçalho SKU;QTD, delimitador ponto e vírgula e codificação Windows-1252.';
+     document.getElementById('idlist').innerHTML='<ul>'+valid.map(([id,items])=>'<li><b>'+id+'</b> — '+items.length+' linha(s) de SKU</li>').join('')+'</ul>';
+     results.classList.add('show');showStatus('Processamento concluído. A soma das quantidades foi calculada e os arquivos estão prontos.','success');
+   }catch(err){generatedZip=null;showStatus(err.message||'Ocorreu um erro ao processar a planilha.','error');}
+   finally{processBtn.disabled=!selectedFile;}
+ });
+ document.getElementById('download').addEventListener('click',()=>{
+   if(!generatedZip)return;
+   const a=document.createElement('a'),url=URL.createObjectURL(generatedZip);
+   a.href=url;a.download='PEDIDOS_WIS_CSV.zip';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ });
+})();
+</script>
+</body></html>
